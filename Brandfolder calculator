@@ -1,0 +1,137 @@
+// GLOBAL VARIABLES - NEED TO REFERENCE IN FUNCTIONS
+var teamSize = document.getElementById("team-size").value || 0;
+var workTime = document.getElementById("employee-work-time").value || 0;
+var salary = document.getElementById("employee-salary").value || 0;
+var assetCount = document.getElementById("asset-count").value || 0;
+var assetManagement = document.getElementById("asset-management").value || 0;
+var lostAssets = document.getElementById("lost-assets").value || 0;
+var assetRequests = document.getElementById("asset-requests").value || 0;
+var calculationButton = document.getElementById("calculate-roi-button");
+var initial_load = true;
+function employeeHourlySalary() {
+  salary = document.getElementById('employee-salary').value || 0;
+  workTime = document.getElementById('employee-work-time').value || 0;
+  var hourlySalary = (salary/52)/workTime;
+  return hourlySalary;
+}  
+function locatingAssetsPerWeek() {
+  lostAssets = document.getElementById('lost-assets').value || 0;
+  assetManagement = document.getElementById('asset-management').value || 0;
+  var assetLocationPerWeek = lostAssets*assetManagement;
+  return assetLocationPerWeek;
+}  
+function minuteslocatingAssetsPerYear() {
+  var locatingAssets = locatingAssetsPerWeek();
+  var locatingAssetsYearly = locatingAssets*52;
+  return locatingAssetsYearly;
+}
+function hoursLocatingAssetsPerYear() {
+  var hoursLocatingAssets = minuteslocatingAssetsPerYear();
+  var hoursLocatingAssetsYearly = hoursLocatingAssets/60;
+  return hoursLocatingAssetsYearly;
+}  
+function hoursWastedYearly() {
+  teamSize = document.getElementById("team-size").value || 0;
+  var hoursLocatingAssets = hoursLocatingAssetsPerYear();
+  var hoursWasted = hoursLocatingAssets*teamSize;
+  document.getElementById('hours-wasted-yearly').innerHTML = Math.floor(hoursWasted).toLocaleString() + ' hours per year';
+  return hoursWasted;
+}  
+function costSavingsAssetRequests() {
+  var hoursWasted = hoursWastedYearly();
+  var employeeSalary = employeeHourlySalary();
+  var costSavings = hoursWasted*employeeSalary;
+  document.getElementById('potential-cost-savings').innerHTML = '$' + Math.floor(costSavings).toLocaleString();
+  return costSavings;
+}  
+function hoursSpentOnAssetFulfillment() {
+  assetCount = document.getElementById("asset-count").value || 0;
+    assetManagement = document.getElementById("asset-management").value || 0;
+  assetRequests = document.getElementById("asset-requests").value || 0;
+  var assetFulfillmentHours = assetRequests*(assetCount*assetManagement);
+  document.getElementById('asset-fulfillment-hours-wasted').innerHTML = Math.floor(assetFulfillmentHours).toLocaleString() + ' hours per year';
+  return assetFulfillmentHours;
+}  
+function costSavingsOnAssetFulfillment() {
+  var assetFulfillmentHours = hoursSpentOnAssetFulfillment();
+  var employeeSalary = employeeHourlySalary();
+  var assetFulfillmentCostSavings = assetFulfillmentHours*employeeSalary;
+  document.getElementById('asset-fulfillment-cost-savings').innerHTML = '$' + Math.floor(assetFulfillmentCostSavings).toLocaleString();
+  return assetFulfillmentCostSavings;
+}  
+function totalHours() {
+  var assetFulfillmentHours = hoursSpentOnAssetFulfillment();
+  var hoursWasted = hoursWastedYearly();
+  var totalHoursWasted = assetFulfillmentHours + hoursWasted;
+  document.getElementById('total-hours-saved').innerHTML = Math.floor(totalHoursWasted).toLocaleString() + ' hours';
+  return totalHoursWasted;
+}
+function totalCost() {
+  var assetFulfillmentCostSavings = costSavingsOnAssetFulfillment();
+  var costSavings = costSavingsAssetRequests();
+  var totalCostSavings = assetFulfillmentCostSavings + costSavings;
+  document.getElementById('total-money-saved').innerHTML = '$' + Math.floor(totalCostSavings).toLocaleString();
+  return totalCostSavings;
+}  
+  
+function calculateROI() {
+  employeeHourlySalary();
+  locatingAssetsPerWeek();
+  minuteslocatingAssetsPerYear();
+  hoursLocatingAssetsPerYear();
+  hoursWastedYearly();
+  costSavingsAssetRequests();
+  hoursSpentOnAssetFulfillment();
+  costSavingsOnAssetFulfillment();
+  totalHours();
+  totalCost();
+  updateURL();
+}  
+function updateURL() {
+  var url = '/roi-calculator?' + teamSize + '-' + workTime + '-' + salary + '-' + assetCount + '-' + assetManagement + '-' + lostAssets + '-' + assetRequests;
+  history.replaceState(null, null, url);
+}
+calculationButton.addEventListener('click', function() {
+  event.preventDefault()
+  var calculatorResults = document.querySelector('.results');
+  var instructions = document.querySelector('.instructions');
+  var errorText = document.getElementById('error-text');
+  var elements = document.getElementById('calculator-form').elements;
+  var isValid = true;
+  for (var i = 0; i < elements.length - 1; i++) {
+    element = elements[i];
+    if (element.value === "") {
+      errorText.style.visibility = 'visible';
+      isValid = false;
+    }  
+  }
+  
+  if (isValid) {
+    errorText.style.visibility = 'hidden';
+    calculatorResults.classList.remove('calculator-results');
+    instructions.classList.remove('show-instructions');
+    calculatorResults.classList.add('show-results');   
+    instructions.classList.add('hide-instructions');
+    calculateROI();
+  }
+});  
+if (initial_load) {
+  console.log('initial_load');
+  loadInputs();
+  initial_load = false;
+}
+function loadInputs() {
+  console.log('loadInputs');
+    var qs = window.location.search.replace("?","");
+  var qs_split = qs.split("-");
+  document.getElementById("team-size").value = qs_split[0];
+  document.getElementById("employee-work-time").value = qs_split[1];
+  document.getElementById("employee-salary").value = qs_split[2];
+  document.getElementById("asset-count").value = qs_split[3];
+  document.getElementById("asset-management").value = qs_split[4];
+  document.getElementById("lost-assets").value = qs_split[5];
+  document.getElementById("asset-requests").value = qs_split[6];
+  
+  document.getElementById("calculate-roi-button").click();
+    console.log('click');
+}

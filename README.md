@@ -20,6 +20,8 @@ Enter Svelte - it's helps you build WebApps fast and compiles into JavaScript.
 
 With basic HTML and JavaScript you could go a long way and build an app or get someone from your dev team to help given the simplicity.
 
+https://www.swivle.com/industries-agency/
+
 This is embedded as calculator on the swivle website.
 
 It's embedded through the following piece of code in a custom HTML block in Wordpress:
